@@ -93,20 +93,35 @@
         </div>
 
         <div class="w-1/2 flex flex-col bg-[#06090c] border-x border-gray-800 relative shadow-inner">
-            <div class="p-5 bg-[#0d1117] border-b border-gray-800 flex-none">
-                <input type="text" wire:model.live="search" placeholder="FIND YOUR CHAMPION..."
-                       class="w-full bg-black border-2 border-gray-800 p-4 text-white italic outline-none focus:border-yellow-500/50 uppercase text-sm tracking-widest transition-all shadow-inner">
+            <div class="bg-[#0d1117] border-b border-gray-800 flex-none shadow-lg">
+                <div class="p-4 pb-2">
+                    <input type="text" wire:model.live="search" placeholder="TÌM KIẾM TƯỚNG..."
+                           class="w-full bg-black border-2 border-gray-800 p-3 text-white italic outline-none focus:border-yellow-500/50 uppercase text-xs tracking-widest transition-all shadow-inner">
+                </div>
+
+                <div class="flex flex-wrap justify-center gap-1 p-2 pb-4">
+                    @foreach(['Tất cả', 'Đỡ đòn', 'Đấu sĩ', 'Sát thủ', 'Pháp sư', 'Xạ thủ', 'Trợ thủ'] as $role)
+                        <button wire:click="setRole('{{ $role }}')"
+                                class="px-3 py-1 text-[10px] font-black uppercase italic transition-all duration-200 border-b-2
+                        {{ $selectedRole == $role
+                           ? 'text-yellow-500 border-yellow-500 bg-yellow-500/10'
+                           : 'text-gray-500 border-transparent hover:text-gray-300 hover:border-gray-700' }}">
+                            {{ $role }}
+                        </button>
+                    @endforeach
+                </div>
             </div>
 
             <div class="flex-1 overflow-y-scroll p-6 custom-scrollbar">
                 <div class="grid grid-cols-4 sm:grid-cols-5 gap-6 pb-20">
-                    @foreach($heroes as $hero)
+                    @forelse($heroes as $hero)
                         @php $occ = in_array($hero->id, $this->getAllOccupiedIds()); @endphp
                         <div wire:click.prevent="{{ $occ ? '' : 'selectHero('.$hero->id.')' }}"
                              class="flex flex-col items-center group {{ $occ ? 'opacity-10 grayscale cursor-not-allowed' : 'cursor-pointer hover:scale-110' }} transition-all duration-200">
+
                             <div
-                                class="relative w-20 h-20 rounded-full border-4 {{ $selectedHeroId == $hero->id ? 'border-yellow-400 shadow-[0_0_25px_rgba(234,179,8,0.7)]' : 'border-gray-800' }} p-1.5 bg-gray-900 transition-all">
-                                <img src="{{ asset('heroes/'.$hero->image) }}"
+                                class="relative w-20 h-20 rounded-full border-4 {{ $selectedHeroId == $hero->id ? 'border-yellow-400 shadow-[0_0_25px_rgba(234,179,8,0.7)]' : 'border-gray-800' }} p-1.5 bg-gray-900 overflow-hidden">
+                                <img src="{{ asset('assets/heroes/' . $hero->image) }}"
                                      class="w-full h-full object-cover rounded-full">
                                 @if($occ)
                                     <div
@@ -118,7 +133,12 @@
                             <span
                                 class="text-[11px] mt-3 font-black {{ $selectedHeroId == $hero->id ? 'text-yellow-400' : 'text-gray-400' }} group-hover:text-white uppercase text-center tracking-tighter">{{ $hero->name }}</span>
                         </div>
-                    @endforeach
+                    @empty
+                        <div
+                            class="col-span-5 text-center py-10 text-gray-600 italic uppercase tracking-widest text-xs">
+                            Không tìm thấy tướng phù hợp
+                        </div>
+                    @endforelse
                 </div>
             </div>
 

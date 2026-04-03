@@ -9,19 +9,18 @@ class MobaDraft extends Component
 {
     // Thứ tự phase chuẩn theo mô tả của bạn
     public $search = '';
+    public $selectedRole = 'Tất cả'; // Mặc định hiển thị tất cả
     public $isStarted = false;
     public $timeLeft = 0;
     public $currentPhaseIndex = 0;
     public $selectedHeroId = null;
     public $blueBans = [];
+    public $redBans = [];
 
     // Dùng mảng phẳng để dễ quản lý số lượng đã chọn trong từng phase
-    public $redBans = [];
     public $bluePicks = [];
     public $redPicks = [];
     public $currentPhaseActionCount = 0;
-
-    // Lưu số lượng đã thực hiện TRONG PHASE HIỆN TẠI
     protected $phases = [
         // GIAI ĐOẠN 1
         ['name' => 'BLUE_BAN_1', 'side' => 'blue', 'type' => 'ban', 'count' => 3, 'timer' => 30],
@@ -38,6 +37,13 @@ class MobaDraft extends Component
         ['name' => 'BLUE_PICK_3', 'side' => 'blue', 'type' => 'pick', 'count' => 2, 'timer' => 30],
         ['name' => 'RED_PICK_4', 'side' => 'red', 'type' => 'pick', 'count' => 1, 'timer' => 20],
     ];
+
+    // Lưu số lượng đã thực hiện TRONG PHASE HIỆN TẠI
+
+    public function setRole($role)
+    {
+        $this->selectedRole = $role;
+    }
 
     public function startDraft()
     {
@@ -129,8 +135,20 @@ class MobaDraft extends Component
 
     public function render()
     {
+        $query = Hero::query();
+
+        // Lọc theo tên
+        if (!empty($this->search)) {
+            $query->where('name', 'like', "%{$this->search}%");
+        }
+
+        // Lọc theo hệ (Role)
+        if ($this->selectedRole !== 'Tất cả') {
+            $query->where('role', 'like', "%{$this->selectedRole}%");
+        }
+
         return view('livewire.index', [
-            'heroes' => Hero::where('name', 'like', "%{$this->search}%")->get(),
+            'heroes' => $query->get(),
         ]);
     }
 }
